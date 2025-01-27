@@ -48,20 +48,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-
-
-        >
-          {/* Add ModeToggle */}
-          <header className="flex justify-end p-6">
-            <ModeToggle />
-          </header>
-          <main>{children}</main>
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   );
