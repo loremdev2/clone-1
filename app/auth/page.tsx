@@ -4,8 +4,12 @@ import { useCallback, useState } from "react";
 import InputWidget from "../components/Input/InputWidget";
 import axios from 'axios';
 import { signIn } from 'next-auth/react';
+import { useRouter } from "next/navigation";
+import { FcGoogle } from 'react-icons/fc';
+import { FaGithub } from 'react-icons/fa';
 
 export default function Auth() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -37,22 +41,6 @@ export default function Auth() {
     setShowPassword((prev) => !prev); // Toggle show/hide password
   };
 
-  const register = useCallback(async () => {
-    if (!email || !password) {
-      alert('Email and Password are required');
-      return;
-    }
-    try {
-      await axios.post('/api/register', {
-        email,
-        username,
-        password,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }, [email, username, password]);
-
   const login = useCallback(async () => {
     if (!email || !password) {
       alert('Email and Password are required');
@@ -64,19 +52,35 @@ export default function Auth() {
         password,
         redirect: false, // Prevent automatic redirection
       });
-  
+
       if (res?.error) {
         alert("Invalid email or password"); // Show error message
         return;
       }
-  
-      window.location.href = '/'; // Redirect to home after successful login
+      router.push('/') // Redirect to Home Page
     } catch (error) {
       console.error("Login error:", error);
     }
-  }, [email, password]);
-  
+  }, [email, password, router]);
 
+
+  const register = useCallback(async () => {
+    if (!email || !password) {
+      alert('Email and Password are required');
+      return;
+    }
+    try {
+      await axios.post('/api/register', {
+        email,
+        username,
+        password,
+      });
+
+      login(); // Login after Registering is done
+    } catch (error) {
+      console.error(error);
+    }
+  }, [email, username, password, login]);
 
 
 
@@ -137,6 +141,52 @@ export default function Auth() {
               <button onClick={variant === 'login' ? login : register} className="bg-red-600 py-3 text-white rounded-md w-full mt-10 hover:bg-red-700 translate min-w-[280px] max-w-[400px]">
                 {variant === 'login' ? 'Login' : 'Sign Up'}
               </button>
+
+
+              <div className="flex flex-row items-center gap-4 mt-8 justify-center">
+                <div
+                  onClick={() => {
+                    signIn('google', { callbackUrl: '/' })
+                  }
+                  }
+                  className="
+                    w-10
+                    h-10
+                    bg-white
+                    rounded-full
+                    flex
+                    items-center
+                    justify-center
+                    cursor-pointer 
+                    hover:opacity-80
+                    transition
+                  "
+                >
+                  <FcGoogle size={30} />
+                </div>
+
+                <div
+                  onClick={() => {
+                    signIn('github', { callbackUrl: '/' })
+                  }
+                  }
+                  className="
+                    w-10
+                    h-10
+                    bg-white
+                    rounded-full
+                    flex
+                    items-center
+                    justify-center
+                    cursor-pointer 
+                    hover:opacity-80
+                    transition
+                  "
+                >
+                  <FaGithub size={30} />
+                </div>
+
+              </div>
               <p className="text-neutral-500 mt-12 flex justify-between items-center">
                 {variant === 'login' ? 'Don’t have an account?' : 'Already have an account?'}
                 <span
@@ -146,7 +196,6 @@ export default function Auth() {
                   {variant === "login" ? "Create an Account" : "Login"}
                 </span>
               </p>
-
             </div>
           </div>
         </nav>

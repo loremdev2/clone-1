@@ -2,9 +2,26 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import prismadb from '@/lib/prismadb';
 import { compare } from 'bcryptjs';
-
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from 'next-auth/providers/google';
+import {PrismaAdapter} from '@next-auth/prisma-adapter';
 export default NextAuth({
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_ID || '',
+            clientSecret: process.env.GOOGLE_SECRET || '',
+            authorization: {
+                params: {
+                  prompt: "consent",
+                  access_type: "offline",
+                  response_type: "code"
+                }
+            }
+        }),
+        GitHubProvider({
+            clientId: process.env.GITHUB_ID ||'',
+            clientSecret: process.env.GITHUB_SECRET || ''
+          }),
         Credentials({
             id: 'credentials',
             name: 'Credentials',
@@ -42,6 +59,7 @@ export default NextAuth({
         signIn: '/auth',
     },
     debug: process.env.NODE_ENV !== 'production',
+    adapter: PrismaAdapter(prismadb),
     session: {
         strategy: 'jwt'
     },
